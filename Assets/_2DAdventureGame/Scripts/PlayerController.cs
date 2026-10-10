@@ -28,7 +28,7 @@ public class PlayerController : MonoBehaviour
     {
         Vector2 moveInput = Vector2.zero;
 
-        // Зчитуємо клавіатуру прямо через нову Input System
+      
         if (Keyboard.current != null)
         {
             if (Keyboard.current.wKey.isPressed || Keyboard.current.upArrowKey.isPressed) moveInput.y += 1;
