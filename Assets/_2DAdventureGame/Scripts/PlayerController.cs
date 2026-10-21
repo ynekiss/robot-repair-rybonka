@@ -22,6 +22,9 @@ public class PlayerController : MonoBehaviour
     private Animator animator;
     private Vector2 moveDirection = new Vector2(1, 0);
 
+    // Снаряд
+    public GameObject projectilePrefab;
+
     void Start()
     {
         rigidbody2d = GetComponent<Rigidbody2D>();
@@ -63,6 +66,12 @@ public class PlayerController : MonoBehaviour
                 isInvincible = false;
             }
         }
+
+        // Постріл на клавішу C
+        if (Keyboard.current != null && Keyboard.current.cKey.wasPressedThisFrame)
+        {
+            Launch();
+        }
     }
 
     void FixedUpdate()
@@ -85,5 +94,17 @@ public class PlayerController : MonoBehaviour
 
         currentHealth = Mathf.Clamp(currentHealth + amount, 0, maxHealth);
         Debug.Log("Health: " + currentHealth + "/" + maxHealth);
+    }
+
+    void Launch()
+    {
+        GameObject projectileObject = Instantiate(projectilePrefab,
+            rigidbody2d.position + Vector2.up * 0.5f,
+            Quaternion.identity);
+
+        Projectile projectile = projectileObject.GetComponent<Projectile>();
+        projectile.Launch(moveDirection, 300);
+
+        animator.SetTrigger("Launch");
     }
 }
