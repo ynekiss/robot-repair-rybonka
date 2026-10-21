@@ -18,9 +18,14 @@ public class PlayerController : MonoBehaviour
     private Rigidbody2D rigidbody2d;
     private Vector2 move;
 
+    // Анімація
+    private Animator animator;
+    private Vector2 moveDirection = new Vector2(1, 0);
+
     void Start()
     {
         rigidbody2d = GetComponent<Rigidbody2D>();
+        animator = GetComponent<Animator>();
         currentHealth = maxHealth;
     }
 
@@ -28,7 +33,6 @@ public class PlayerController : MonoBehaviour
     {
         Vector2 moveInput = Vector2.zero;
 
-      
         if (Keyboard.current != null)
         {
             if (Keyboard.current.wKey.isPressed || Keyboard.current.upArrowKey.isPressed) moveInput.y += 1;
@@ -38,6 +42,17 @@ public class PlayerController : MonoBehaviour
         }
 
         move = moveInput.normalized;
+
+        // Куди робот дивиться: запам'ятовуємо останній напрям руху
+        if (!Mathf.Approximately(move.x, 0.0f) || !Mathf.Approximately(move.y, 0.0f))
+        {
+            moveDirection.Set(move.x, move.y);
+            moveDirection.Normalize();
+        }
+
+        animator.SetFloat("Look X", moveDirection.x);
+        animator.SetFloat("Look Y", moveDirection.y);
+        animator.SetFloat("Speed", move.magnitude);
 
         // Таймер невразливості
         if (isInvincible)
@@ -65,6 +80,7 @@ public class PlayerController : MonoBehaviour
 
             isInvincible = true;
             invincibleTimer = timeInvincible;
+            animator.SetTrigger("Hit");
         }
 
         currentHealth = Mathf.Clamp(currentHealth + amount, 0, maxHealth);
