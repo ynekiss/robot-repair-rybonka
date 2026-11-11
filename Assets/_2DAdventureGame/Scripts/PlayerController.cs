@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using Beginner2D;
+using UnityEngine;
 using UnityEngine.InputSystem; // Використовуємо нову Input System
 
 public class PlayerController : MonoBehaviour
@@ -24,6 +25,10 @@ public class PlayerController : MonoBehaviour
 
     // Снаряд
     public GameObject projectilePrefab;
+
+    // Взаємодія з NPC (Крок 3)
+    public LayerMask npcLayer;
+    public float rayDistance = 1.5f;
 
     void Start()
     {
@@ -72,6 +77,21 @@ public class PlayerController : MonoBehaviour
         {
             Launch();
         }
+
+        // Розмова з NPC на клавішу X (Крок 3)
+        if (Keyboard.current != null && Keyboard.current.xKey.wasPressedThisFrame)
+        {
+            RaycastHit2D hit = Physics2D.Raycast(rigidbody2d.position + Vector2.up * 0.2f, moveDirection, rayDistance, npcLayer);
+
+            if (hit.collider != null)
+            {
+                NonPlayerCharacter npc = hit.collider.GetComponent<NonPlayerCharacter>();
+                if (npc != null)
+                {
+                    npc.DisplayDialog();
+                }
+            }
+        }
     }
 
     void FixedUpdate()
@@ -94,6 +114,18 @@ public class PlayerController : MonoBehaviour
 
         currentHealth = Mathf.Clamp(currentHealth + amount, 0, maxHealth);
         Debug.Log("Health: " + currentHealth + "/" + maxHealth);
+
+        // Оновлюємо рожеву смужку здоров'я на UI (Крок 2)
+        if (UIHandler.instance != null)
+        {
+            UIHandler.instance.SetHealthValue(currentHealth / (float)maxHealth);
+        }
+
+        // Перевірка на поразку (Крок 5)
+        if (currentHealth <= 0 && GameManager.instance != null)
+        {
+            GameManager.instance.GameOver();
+        }
     }
 
     void Launch()
